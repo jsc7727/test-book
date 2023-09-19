@@ -1,5 +1,8 @@
+'use client';
 import TodoList from '@/components/TodoList';
 import Image from 'next/image';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 export default function Home() {
   return (
@@ -9,7 +12,9 @@ export default function Home() {
           Get started by editing&nbsp;
           <code className='font-mono font-bold'>src/app/page.tsx</code>
         </p>
-        <TodoList />
+        <DndProvider backend={HTML5Backend}>
+          <TodoList />
+        </DndProvider>
       </div>
     </main>
   );

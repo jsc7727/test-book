@@ -1,23 +1,37 @@
 'use client';
 
+import { produce } from 'immer';
+import { nanoid } from 'nanoid';
 import { useCallback, useState } from 'react';
 
-export type TodoType = string;
+export type TodoType = { id: string; content: string };
 
 export type TodoListType = TodoType[];
 
-const useTodoList = () => {
-  const [todoList, setTodoList] = useState<TodoListType>([]);
+const useTodoList = (initTodoList?: TodoListType) => {
+  const [todoList, setTodoList] = useState<TodoListType>(initTodoList ?? []);
 
-  const addTodo = useCallback((newTodo: TodoType) => {
-    setTodoList((prev) => [...prev, newTodo]);
+  const createTodo = useCallback((todoContent: TodoType['content']) => {
+    return { id: nanoid(), content: todoContent };
   }, []);
 
+  const addTodo = useCallback(
+    (todoContent: TodoType['content']) => {
+      setTodoList(
+        produce((prev) => {
+          prev.push(createTodo(todoContent));
+        })
+      );
+    },
+    [createTodo]
+  );
+
   const deleteTodo = useCallback((deleteIndex: number) => {
-    setTodoList((prev) => {
-      prev.splice(deleteIndex, 1);
-      return [...prev];
-    });
+    setTodoList(
+      produce((prev) => {
+        prev.splice(deleteIndex, 1);
+      })
+    );
   }, []);
 
   const getFunctionDeleteTodo = useCallback(
@@ -35,10 +49,11 @@ const useTodoList = () => {
       modifyIndex: number;
       inputText: string;
     }) => {
-      setTodoList((prev) => {
-        prev[modifyIndex] = inputText;
-        return [...prev];
-      });
+      setTodoList(
+        produce((prev) => {
+          prev[modifyIndex].content = inputText;
+        })
+      );
     },
     []
   );
@@ -52,6 +67,7 @@ const useTodoList = () => {
 
   return {
     todoList,
+    setTodoList,
     addTodo,
     deleteTodo,
     getFunctionDeleteTodo,

@@ -1,14 +1,34 @@
 'use client';
-
 import useTodoList from '@/hooks/useTodoList';
 import Todo from './Todo';
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import React from 'react';
+import { produce } from 'immer';
 
 const TodoList = () => {
-  const { todoList, addTodo, getFunctionDeleteTodo, getFunctionModifyTodo } =
-    useTodoList();
+  const {
+    todoList,
+    setTodoList,
+    addTodo,
+    getFunctionDeleteTodo,
+    getFunctionModifyTodo,
+  } = useTodoList();
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const moveTodo = useCallback(
+    (dragIndex: number, hoverIndex: number) => {
+      setTodoList(
+        produce((prev) => {
+          [prev[dragIndex], prev[hoverIndex]] = [
+            prev[hoverIndex],
+            prev[dragIndex],
+          ];
+        })
+      );
+    },
+    [setTodoList]
+  );
+
   return (
     <>
       <form
@@ -36,18 +56,22 @@ const TodoList = () => {
           Add
         </button>
       </form>
-      {todoList.map((todo, index) => {
-        const deleteTodo = getFunctionDeleteTodo(index);
-        const modifyTodo = getFunctionModifyTodo(index);
-        return (
-          <Todo
-            key={todo + index}
-            todo={todo}
-            deleteTodo={deleteTodo}
-            modifyTodo={modifyTodo}
-          />
-        );
-      })}
+      <div className='flex flex-col gap-3'>
+        {todoList.map((todo, index) => {
+          const deleteTodo = getFunctionDeleteTodo(index);
+          const modifyTodo = getFunctionModifyTodo(index);
+          return (
+            <Todo
+              key={todo.id}
+              index={index}
+              todo={todo}
+              deleteTodo={deleteTodo}
+              modifyTodo={modifyTodo}
+              moveTodo={moveTodo}
+            />
+          );
+        })}
+      </div>
     </>
   );
 };
