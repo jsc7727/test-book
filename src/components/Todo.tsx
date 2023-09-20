@@ -91,7 +91,7 @@ const Todo = ({
           }}
         />
       ) : (
-        <div className='px-1 truncate'>{todo.content}</div>
+        <div className='px-1 truncate'>{todo?.content}</div>
       )}
       <div className='flex justify-center items-center gap-2'>
         <button
